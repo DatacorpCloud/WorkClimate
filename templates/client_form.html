@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if client %}
+        Modifica Cliente - {{ client.company_name }}
+    {% else %}
+        Nuovo Cliente
+    {% endif %}
+    - Clima e Lavoro Portal
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="h3">
+            {% if client %}
+                Modifica Cliente
+            {% else %}
+                Nuovo Cliente
+            {% endif %}
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="company_name" class="form-label">Nome Azienda *</label>
+                        <input type="text" class="form-control" id="company_name" name="company_name" 
+                               value="{{ client.company_name if client else '' }}" required>
+                        <div class="invalid-feedback">
+                            Il nome dell'azienda è obbligatorio.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Principale *</label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="{{ client.email if client else '' }}" required>
+                        <div class="invalid-feedback">
+                            Inserisci un indirizzo email valido.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email Aggiuntive</label>
+                        <div id="additional-emails">
+                            {% if client and client.emails %}
+                                {% for client_email in client.emails %}
+                                <div class="input-group mb-2 email-group">
+                                    <input type="email" class="form-control" name="additional_emails[]" 
+                                           value="{{ client_email.email }}">
+                                    <button type="button" class="btn btn-outline-danger remove-email">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="add-email">
+                            <i class="fas fa-plus me-1"></i> Aggiungi Email
+                        </button>
+                        <small class="form-text text-muted d-block mt-1">
+                            Aggiungi indirizzi email di supervisori o gruppi che riceveranno le stesse notifiche.
+                        </small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Telefono</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" 
+                               value="{{ client.phone if client else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="city" class="form-label">Città *</label>
+                        <input type="text" class="form-control" id="city" name="city" 
+                               value="{{ client.city if client else '' }}" required>
+                        <div class="invalid-feedback">
+                            La città è obbligatoria per ottenere i dati meteo.
+                        </div>
+                        <small class="form-text text-muted">
+                            Inserisci il nome della città per cui vuoi monitorare il meteo.
+                        </small>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('clients') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Indietro
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> 
+                            {% if client %}
+                                Aggiorna
+                            {% else %}
+                                Salva
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validazione form Bootstrap
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+    
+    // Gestione campi email dinamici
+    document.addEventListener('DOMContentLoaded', function() {
+        const addEmailBtn = document.getElementById('add-email');
+        const additionalEmailsContainer = document.getElementById('additional-emails');
+        
+        // Funzione per aggiungere un nuovo campo email
+        addEmailBtn.addEventListener('click', function() {
+            const emailGroup = document.createElement('div');
+            emailGroup.className = 'input-group mb-2 email-group';
+            emailGroup.innerHTML = `
+                <input type="email" class="form-control" name="additional_emails[]" placeholder="Inserisci email aggiuntiva">
+                <button type="button" class="btn btn-outline-danger remove-email">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            additionalEmailsContainer.appendChild(emailGroup);
+            
+            // Aggiungi event listener al pulsante di rimozione
+            const removeBtn = emailGroup.querySelector('.remove-email');
+            removeBtn.addEventListener('click', function() {
+                additionalEmailsContainer.removeChild(emailGroup);
+            });
+        });
+        
+        // Aggiungi event listener ai pulsanti di rimozione esistenti
+        document.querySelectorAll('.remove-email').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const emailGroup = btn.closest('.email-group');
+                additionalEmailsContainer.removeChild(emailGroup);
+            });
+        });
+    });
+</script>
+{% endblock %}

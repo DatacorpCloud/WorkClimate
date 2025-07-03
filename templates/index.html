@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Clima e Lavoro Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="card-title">Benvenuto nel Clima e Lavoro Portal</h1>
+                <p class="card-text">Questo portale ti permette di gestire i clienti e monitorare i livelli di rischio meteo per ciascuna località.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Statistiche Clienti -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Clienti</h5>
+                <p class="card-text display-4">{{ clients_count }}</p>
+                <a href="{{ url_for('clients') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-arrow-right me-1"></i> Gestisci Clienti
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistiche Report -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Report Attivi</h5>
+                <p class="card-text display-4">{{ reports_count }}</p>
+                <a href="{{ url_for('reports') }}" class="btn btn-success mt-3">
+                    <i class="fas fa-arrow-right me-1"></i> Visualizza Report
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Azioni Rapide -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Azioni Rapide</h5>
+                <div class="d-grid gap-2 mt-4">
+                    <form action="{{ url_for('sync_weather_route') }}" method="post">
+                        <button type="submit" class="btn btn-warning mb-2 w-100">
+                            <i class="fas fa-sync me-1"></i> Sincronizza Meteo
+                        </button>
+                    </form>
+                    <form action="{{ url_for('send_all_notifications') }}" method="post">
+                        <button type="submit" class="btn btn-info mb-2 w-100">
+                            <i class="fas fa-envelope me-1"></i> Invia Notifiche
+                        </button>
+                    </form>
+                    <a href="{{ url_for('settings') }}" class="btn btn-secondary w-100">
+                        <i class="fas fa-cog me-1"></i> Impostazioni
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ultimi Report con Rischio Alto -->
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Report con Rischio Alto
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if high_risk_reports %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Città</th>
+                                <th>Giorno</th>
+                                <th>Rischio</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for report in high_risk_reports %}
+                            <tr>
+                                <td>{{ report.client.company_name }}</td>
+                                <td>{{ report.client.city }}</td>
+                                <td>{{ report.day_label }}</td>
+                                <td>
+                                    <span class="badge bg-danger">{{ report.risk }}</span>
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('send_notification', client_id=report.client.id) }}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-envelope me-1"></i> Notifica
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center mb-0">Nessun report con rischio alto al momento.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Aggiorna la pagina ogni 30 minuti per mantenere i dati freschi
+    setTimeout(function() {
+        location.reload();
+    }, 30 * 60 * 1000);
+</script>
+{% endblock %}

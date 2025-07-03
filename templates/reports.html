@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Report Meteo - Clima e Lavoro Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3">Report Meteo</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <div class="btn-group">
+            <form action="{{ url_for('sync_weather_route') }}" method="post">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fas fa-sync me-1"></i> Sincronizza Meteo
+                </button>
+            </form>
+            <form action="{{ url_for('send_all_notifications') }}" method="post">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-envelope me-1"></i> Invia a Tutti
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if clients %}
+    {% for client in clients %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ client.company_name }}</h5>
+            <div>
+                <span class="badge bg-secondary me-2">{{ client.city }}</span>
+                <form action="{{ url_for('send_notification', client_id=client.id) }}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-envelope me-1"></i> Invia Notifica
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            {% set reports = client.weather_reports %}
+            {% if reports %}
+            <div class="row">
+                {% for report in reports %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 {% if report.risk and report.risk.upper() == 'ALTO' %}border-danger{% elif report.risk and report.risk.upper() == 'MEDIO' %}border-warning{% else %}border-success{% endif %}">
+                        <div class="card-header {% if report.risk and report.risk.upper() == 'ALTO' %}bg-danger text-white{% elif report.risk and report.risk.upper() == 'MEDIO' %}bg-warning{% else %}bg-success text-white{% endif %}">
+                            <h6 class="mb-0">{{ report.day_label }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {% if report.risk %}
+                                    {% if report.risk.upper() == 'ALTO' %}
+                                        <i class="fas fa-exclamation-triangle text-danger me-1"></i>
+                                    {% elif report.risk.upper() == 'MEDIO' %}
+                                        <i class="fas fa-exclamation-circle text-warning me-1"></i>
+                                    {% else %}
+                                        <i class="fas fa-check-circle text-success me-1"></i>
+                                    {% endif %}
+                                    Rischio: {{ report.risk }}
+                                {% else %}
+                                    <i class="fas fa-question-circle text-muted me-1"></i>
+                                    Rischio: Non disponibile
+                                {% endif %}
+                            </h5>
+                            <p class="card-text">{{ report.description }}</p>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Aggiornato: {{ report.date.strftime('%d/%m/%Y') }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle me-1"></i> Nessun report disponibile per questo cliente. 
+                <a href="{{ url_for('sync_weather_route') }}" class="alert-link">Sincronizza ora</a>.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card shadow-sm">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+        <h5>Nessun cliente presente</h5>
+        <p class="text-muted">Aggiungi dei clienti per visualizzare i report meteo</p>
+        <a href="{{ url_for('clients') }}" class="btn btn-primary mt-2">
+            <i class="fas fa-users me-1"></i> Gestisci Clienti
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Salva i dati dei report in localStorage quando la pagina viene caricata
+    document.addEventListener('DOMContentLoaded', function() {
+        // Salva i dati dei report in localStorage
+        const reportData = {};
+        
+        {% for client in clients %}
+        reportData['{{ client.id }}'] = {
+            company_name: '{{ client.company_name }}',
+            city: '{{ client.city }}',
+            reports: [
+                {% for report in client.weather_reports %}
+                {
+                    day_label: '{{ report.day_label }}',
+                    risk: '{{ report.risk }}',
+                    description: '{{ report.description }}',
+                    date: '{{ report.date.strftime("%d/%m/%Y") }}'
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        };
+        {% endfor %}
+        
+        // Salva i dati in localStorage
+        localStorage.setItem('worklimateReports', JSON.stringify(reportData));
+    });
+    
+    // Aggiorna la pagina ogni ora per mantenere i dati freschi
+    setTimeout(function() {
+        location.reload();
+    }, 60 * 60 * 1000);
+</script>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Impostazioni - Clima e Lavoro Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="h3">Impostazioni</h1>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Impostazioni Email -->
+    <div class="col-md-8 mx-auto mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-envelope me-2"></i> Configurazione Email</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('settings') }}" class="needs-validation" enctype="multipart/form-data" novalidate>
+                    <div class="mb-3">
+                        <label for="smtp_server" class="form-label">Server SMTP *</label>
+                        <input type="text" class="form-control" id="smtp_server" name="smtp_server" 
+                               value="{{ settings.smtp_server if settings else '' }}" required>
+                        <div class="invalid-feedback">
+                            Il server SMTP è obbligatorio.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="smtp_port" class="form-label">Porta SMTP *</label>
+                        <input type="number" class="form-control" id="smtp_port" name="smtp_port" 
+                               value="{{ settings.smtp_port if settings else '587' }}" required>
+                        <div class="invalid-feedback">
+                            La porta SMTP è obbligatoria.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="smtp_user" class="form-label">Username SMTP *</label>
+                        <input type="text" class="form-control" id="smtp_user" name="smtp_user" 
+                               value="{{ settings.smtp_user if settings else '' }}" required>
+                        <div class="invalid-feedback">
+                            L'username SMTP è obbligatorio.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="smtp_pass" class="form-label">Password SMTP *</label>
+                        <input type="password" class="form-control" id="smtp_pass" name="smtp_pass" 
+                               value="{{ settings.smtp_pass if settings else '' }}" required>
+                        <div class="invalid-feedback">
+                            La password SMTP è obbligatoria.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="from_email" class="form-label">Email Mittente *</label>
+                        <input type="email" class="form-control" id="from_email" name="from_email" 
+                               value="{{ settings.from_email if settings else '' }}" required>
+                        <div class="invalid-feedback">
+                            L'email del mittente è obbligatoria.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="logo_file" class="form-label">Logo Email</label>
+                        <input type="file" class="form-control" id="logo_file" name="logo_file" accept="image/*">
+                        <input type="hidden" name="logo_path" id="logo_path" value="{{ settings.logo_path if settings else 'logo-base.png' }}">
+                        <small class="form-text text-muted">
+                            Carica un'immagine da utilizzare come logo nelle email. Se non specificato, verrà utilizzato il logo predefinito.
+                        </small>
+                        {% if settings and settings.logo_path %}
+                        <div class="mt-2">
+                            <img src="{{ url_for('static', filename='img/' + settings.logo_path) }}" alt="Logo attuale" style="max-height: 100px;" class="img-thumbnail">
+                            <p class="small text-muted">Logo attuale: {{ settings.logo_path }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="my-4">
+                    <h5 class="mb-3">Configurazione Scheduler</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sincronizzazione Meteo</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="sync_weather_hour" name="sync_weather_hour" 
+                                                   value="{{ settings.sync_weather_hour if settings else 6 }}" min="0" max="23" required>
+                                            <span class="input-group-text">ore</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="sync_weather_minute" name="sync_weather_minute" 
+                                                   value="{{ settings.sync_weather_minute if settings else 0 }}" min="0" max="59" required>
+                                            <span class="input-group-text">minuti</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Orario giornaliero per la sincronizzazione dei dati meteo.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Invio Notifiche</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="send_notifications_hour" name="send_notifications_hour" 
+                                                   value="{{ settings.send_notifications_hour if settings else 7 }}" min="0" max="23" required>
+                                            <span class="input-group-text">ore</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="send_notifications_minute" name="send_notifications_minute" 
+                                                   value="{{ settings.send_notifications_minute if settings else 0 }}" min="0" max="59" required>
+                                            <span class="input-group-text">minuti</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">
+                                    Orario giornaliero per l'invio automatico delle notifiche ai clienti.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Salva Impostazioni
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Test Email -->
+    <div class="col-md-8 mx-auto mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-paper-plane me-2"></i> Test Email</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ url_for('test_email') }}" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="test_email" class="form-label">Indirizzo Email di Test *</label>
+                        <input type="email" class="form-control" id="test_email" name="test_email" required>
+                        <div class="invalid-feedback">
+                            Inserisci un indirizzo email valido.
+                        </div>
+                        <small class="form-text text-muted">
+                            Verrà inviata un'email di test a questo indirizzo per verificare la configurazione.
+                        </small>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-paper-plane me-1"></i> Invia Email di Test
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Informazioni Sistema -->
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> Informazioni Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th style="width: 30%">Versione Applicazione</th>
+                                <td>1.0.0</td>
+                            </tr>
+                            <tr>
+                                <th>Scheduler Attivo</th>
+                                <td>
+                                    <span class="badge bg-success">Attivo</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Prossima Sincronizzazione</th>
+                                <td>Ogni giorno alle {{ '%02d:%02d'|format(settings.sync_weather_hour if settings else 6, settings.sync_weather_minute if settings else 0) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Invio Automatico Report</th>
+                                <td>Ogni giorno alle {{ '%02d:%02d'|format(settings.send_notifications_hour if settings else 7, settings.send_notifications_minute if settings else 0) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Data e Ora di Sistema</th>
+                                <td id="system-time">{{ now.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validazione form Bootstrap
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+    
+    // Gestione caricamento logo
+    document.getElementById('logo_file').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            // Mostra anteprima dell'immagine
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var previewContainer = document.createElement('div');
+                previewContainer.className = 'mt-2';
+                previewContainer.innerHTML = '<img src="' + e.target.result + '" alt="Anteprima logo" style="max-height: 100px;" class="img-thumbnail"><p class="small text-muted">Nuovo logo da caricare</p>';
+                
+                // Rimuovi eventuali anteprime precedenti
+                var existingPreview = document.querySelector('#logo_file').nextElementSibling.nextElementSibling.nextElementSibling;
+                if (existingPreview && existingPreview.classList.contains('mt-2')) {
+                    existingPreview.remove();
+                }
+                
+                // Aggiungi la nuova anteprima
+                document.querySelector('#logo_file').nextElementSibling.nextElementSibling.after(previewContainer);
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+    
+    // Aggiornamento automatico dell'ora di sistema
+    function updateSystemTime() {
+        var now = new Date();
+        var formattedDate = now.toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        var formattedTime = now.toLocaleTimeString('it-IT', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        document.getElementById('system-time').textContent = formattedDate + ' ' + formattedTime;
+    }
+    
+    // Aggiorna l'ora ogni secondo
+    setInterval(updateSystemTime, 1000);
+    updateSystemTime(); // Aggiorna immediatamente all'avvio
+</script>
+{% endblock %}

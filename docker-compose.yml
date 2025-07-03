@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: worklimate-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./instance:/app/instance  # Persistenza del database SQLite
+      - ./logs:/app/logs  # Cartella per i log
+    environment:
+      - SECRET_KEY=chiave_segreta_da_cambiare_in_produzione
+      - DATABASE_URL=sqlite:///worklimate.db
+      # Configurazione per l'ambiente di debug
+      - FLASK_DEBUG=0  # 0 per disabilitare la modalità debug (produzione), 1 per abilitarla (sviluppo)
+      # Le configurazioni email possono essere aggiunte qui o gestite tramite l'interfaccia utente
+      # - MAIL_SERVER=smtp.example.com
+      # - MAIL_PORT=587
+      # - MAIL_USE_TLS=True
+      # - MAIL_USERNAME=user@example.com
+      # - MAIL_PASSWORD=password
+      # - MAIL_DEFAULT_SENDER=noreply@example.com
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
