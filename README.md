@@ -11,6 +11,8 @@ L’applicazione raccoglie dati pubblici dal portale [Worklimate](https://www.wo
 
 ---
 ![immagine](https://github.com/user-attachments/assets/af8cf182-3169-4707-8846-04494ca5654d)
+![immagine](https://github.com/user-attachments/assets/a74f197b-a6fb-4bc0-bee7-70dc5cb63d86)
+![immagine](https://github.com/user-attachments/assets/e3b72396-2654-4326-87f4-263bf7fe90d8)
 
 ## ✨ Caratteristiche Principali
 
