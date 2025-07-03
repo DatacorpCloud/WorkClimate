@@ -10,6 +10,7 @@ L’applicazione raccoglie dati pubblici dal portale [Worklimate](https://www.wo
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ---
+![immagine](https://github.com/user-attachments/assets/af8cf182-3169-4707-8846-04494ca5654d)
 
 ## ✨ Caratteristiche Principali
 
