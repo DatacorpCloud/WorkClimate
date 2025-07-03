@@ -66,6 +66,7 @@ clima-e-lavoro/
 │
 ├── app.py                 # Applicazione Flask principale
 ├── meteo.py               # Script per il recupero dei dati meteo
+├── meteo2.py              # Script per il recupero dei dati meteo alternativo a meteo.py dopo le mofifiche del 01/07/2025
 ├── models.py              # Modelli del database
 ├── scheduler.py           # Gestione dei job automatici
 ├── config.py              # Configurazioni dell'applicazione
